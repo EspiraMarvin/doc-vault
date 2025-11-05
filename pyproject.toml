@@ -1,0 +1,4 @@
+[tool.ruff]
+line-length = 88
+extend-select = ["DJ"]  # enable Django-specific linting rules
+ignore = ["E501"]  # example: ignore long-line warnings
