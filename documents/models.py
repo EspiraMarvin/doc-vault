@@ -4,12 +4,15 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+#tags to categorize documents
 class Tag(models.Model):
     name = models.CharField(max_length=100, unique=True)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.name
+    
+# single document entity
 class Document(models.Model):
     title = models.CharField(max_length=512)
     description = models.TextField(blank=True)
@@ -25,11 +28,14 @@ class Document(models.Model):
     def __str__(self):
         return self.title
     
+# generates upload path for document versions
 def upload_to_document_version(instance, filename):
     # store by document id and version number
     return f'documents/{instance.document.id}/v/{instance.version_number}/{filename}'
     # return f'documents/{instance.document.id}/versions/{filename}'
    
+   
+# tracks versions of a document
 class DocumentVersion(models.Model):
     document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='versions')
     file = models.FileField(upload_to=upload_to_document_version)
@@ -42,14 +48,15 @@ class DocumentVersion(models.Model):
     ocr_text = models.TextField(blank=True)
     indexed = models.BooleanField(default=False)
     
-    # class meta:
-    #     unique_together = ('document', 'version_number')
-    #     ordering = ('-version_number',)
+    class meta:
+        # ensure unique version numbers per document/ prevent duplicate version no.s per document
+        unique_together = ('document', 'version_number') 
+        ordering = ('-version_number') # return latest version first
     
     def __str__(self):
         return f"{self.document} v{self.version_number}"
     
-
+# Tracks user actions for auditing
 class AuditLog(models.Model):
     ACTION_CHOICES = [
         ('UPLOAD', 'Upload'),
@@ -73,11 +80,12 @@ class AuditLog(models.Model):
     def __str__(self):
             return f"{self.user} {self.action} {self.document} @ {self.timestamp}"
         
+# Manages sharing documents with different users and permissions        
 class SharedDocument(models.Model):
     PERMISSION_CHOICES = [
         ('VIEW', 'View'),
         ('COMMENT', 'Comment'),
-        ('EDIT', 'Edit'),   
+        ('EDIT', 'Edit'),
     ]
     document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='shared_with')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shared_documents')
@@ -85,4 +93,5 @@ class SharedDocument(models.Model):
     shared_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
+        # Prevents sharing the same document with the same user twice.
         unique_together = ('document', 'user')
