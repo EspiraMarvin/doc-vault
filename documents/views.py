@@ -106,3 +106,47 @@ class DocumentViewSet(viewsets.ViewSet):
             },
             status=status.HTTP_201_CREATED,
         )
+
+    @action(detail=True, methods=["post"])
+    def complete_upload(self, request, pk=None):
+        """
+        called by client after upload to s3 is complete.
+        The client provides file_size and optional file_hash for verification.
+        {
+            "version_id": <id>,
+            "file_size": 12345,
+            "file_hash": "sha256..."
+        }
+        This endpoint will:
+        - update DocumentVersion metadata
+        - enqueue OCR/indexing/virus-scan tasks
+        """
+        doc = get_object_or_404(Document, pk=pk)
+        version_id = request.data.get("version_id")
+        file_size = request.data.get("file_size")
+        file_hash = request.data.get("file_hash", "")
+        dv = get_object_or_404(DocumentVersion, pk=version_id, document=doc)
+        # file field currently stores the S3 key string
+        # If using Django storages to manage S3, you can set dv.file.name = key and save
+        dv.file_size = file_size
+        dv.file_hash = file_hash
+        dv.save()
+
+        # queue background tasks here
+        """
+        TODO: (OCR, indexing, virus-scan)
+        """
+        from .tasks import (
+            process_document_version,
+        )  # import here to avoid circular imports at module load
+
+        process_document_version.delay(dv.id)
+
+        AuditLog.objects.create(
+            user=request.user,
+            action="UPDATE",
+            Document=doc,
+            version=dv,
+            extra={"file_size": file_size, "file_hash": file_hash},
+        )
+        return Response({"status": "ok"}, status=status.HTTP_200_OK)
