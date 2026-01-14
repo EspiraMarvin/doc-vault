@@ -81,10 +81,12 @@ class AuditLog(models.Model):
         ("TAG", "Tag"),
         ("ADDTAG", "Tag Added"),
         ("REMOVETAG", "Tag Removed"),
+        ("VIRUS_DETECTED", "Virus Detected"),   
+        ("VIRUS_SCAN_PASSED", "Virus Scan Passed"),
     ]
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    action = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    action = models.CharField(max_length=50, choices=ACTION_CHOICES)
     document = models.ForeignKey(
         Document, on_delete=models.SET_NULL, null=True, blank=True
     )

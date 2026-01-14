@@ -12,3 +12,22 @@
 #### ERD
 
 ![Entity Relationship Diagram](assets/DMS_Models_Relationship.png)
+
+##### run celery worker
+
+```bash
+celery -A dms_project worker -l info
+```
+
+##### monitor tasks (celery)
+
+```bash
+celery -A doc_vault flower
+# Open browser to http://localhost:5555
+```
+
+##### Clean files
+
+```bash
+make clean
+```
