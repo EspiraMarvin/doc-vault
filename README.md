@@ -4,7 +4,7 @@
 
 - [ ] File versioning and diffing
 - [ ] OCR integration for scanned PDFs
-- [ ] Presigned S3 uploads
+- [ ] [Presigned S3 uploads](#presigned-s3-uploads-preview)
 - [ ] User permissions and audit logs
 - [ ] Full-text search (ElasticSearch)
 - [ ] Indexing & virus scanning (Celery)
@@ -32,7 +32,6 @@ celery -A doc_vault flower
 make clean
 ```
 
+##### Presigned S3 uploads preview
 
 [![Presigned URL](https://img.youtube.com/vi/dW-meGlxS0c/maxresdefault.jpg)](https://www.youtube.com/shorts/dW-meGlxS0c)
-
-
