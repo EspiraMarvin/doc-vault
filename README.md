@@ -32,7 +32,7 @@ celery -A doc_vault flower
 make clean
 ```
 
-![Presigned URL](https://www.youtube.com/shorts/dW-meGlxS0c)
 
+[![Presigned URL](https://img.youtube.com/vi/dW-meGlxS0c/maxresdefault.jpg)](https://www.youtube.com/shorts/dW-meGlxS0c)
 
 
